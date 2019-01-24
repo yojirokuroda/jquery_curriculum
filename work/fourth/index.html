@@ -64,9 +64,9 @@
         //   $(this).slideUp()
         // });
         $(".menu__list").children().hover(function(){
-          $(this).children().next().stop().slideDown()
+          $(this).children(".menu__list__childList").stop().slideDown()
         },function(){
-          $(this).children().next().stop().slideUp()
+          $(this).children(".menu__list__childList").stop().slideUp()
         })
       });
     </script>
