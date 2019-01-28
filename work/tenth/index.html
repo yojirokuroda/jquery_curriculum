@@ -38,8 +38,22 @@
       // 取得できたらDOM上に<ul class='lists'></ul>を用意しているので、その中に下のテンプレに沿ってデータを入れ込みましょう。
       $(function(){
 
+        var pages = 0;
+        var searchword = "";
+
         $('#js-search-button').click(function(){
+          bookapi();
+        });
+
+        var bookapi =function(){
           var keyword = $('#js-search-word').val();
+          if(searchword === keyword){
+            pages++;
+          }else {
+            $(".lists").empty();
+            pages = 1;
+            searchword = keyword;
+          }
           $.ajax({
             url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
             type: 'GET',
@@ -50,44 +64,39 @@
               booksGenreId: '001',
               keyword: keyword,
               hits:"20",
-              page: ""
+              page: pages,
             }}).done(function(data){
-              console.log(data);
-              if (data.count > 0){
-              // console.log(data);
-                $.each(data.Items, function(i, item){
-                  var temp = "<li class='lists__item'>
-                   <div class='lists__item__inner'>
-                     <a href='' class='lists__item__link' target='_blank'>
-                       <img src=${item.Item.mediumImageUrl} class='lists__item__img' alt=''>
-                       <p class='lists__item__detail'>作品名：${item.Item.mediumImageUrl}</p>
-                       <p class='lists__item__detail'>作者　：${item.Item.mediumImageUrl}</p>
-                       <p class='lists__item__detail'>出版社：${item.Item.mediumImageUrl}</p>
-                     </a>
-                   </div>
-                  </li>";
-                // var temp = $('<li><a href="${item.Item.itemUrl}"><img src="${item.Item.mediumImageUrl}"></a></li>');
-                // $('ul').append(temp);
-              // });//each
-            });//function
-          });//click
-      });//最初
-          // この中にデータ取得後の動きを記述していきます。
-      // <li class='lists__item'>
-      //  <div class='lists__item__inner'>
-      //    <a href='' class='lists__item__link' target='_blank'>
-      //      <img src='' class='lists__item__img' alt=''>
-      //      <p class='lists__item__detail'>作品名：</p>
-      //      <p class='lists__item__detail'>作者　：</p>
-      //      <p class='lists__item__detail'>出版社：</p>
-      //    </a>
-      //  </div>
-      // </li>
-      //
+              showBooks(1, data);
+            }).fail(function(err){
+              console.log(err)
+            alert("エラーが発生しました");
+            });
+        }//bookapi
+
+        var showBooks = function(da, data) {
+          if (data.count > 0){
+            var temp="";
+              // $(data.Items).each(function(index){
+              $.each(data.Items, function(index, book){
+                // console.log(book)
+                // console.log('data.Items[index] => ', data.Items[index]);
+              temp += '<li class="lists__item">'+
+              '<div class="lists__item__inner">'+
+              '<a href="" class="lists__item__link" target="_blank">'+
+              '<img src="'+ book.Item.largeImageUrl +'"class="lists__item__img" alt="">'+
+              '<p class="lists__item__detail">作品名：'+book.Item.title + '</p><p class="lists__item__detail">作者　： '+
+              book.Item.author + '</p><p class="lists__item__detail">出版社：'+
+              book.Item.publisherName + '</p></a></div></li>'
+              })
+            $('.lists').prepend(temp)
+          } else{
+              var errorcode = '<div class="message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</div>'
+              $('.lists').prepend(errorcode);
+          };
+        }
+      });//最初の言葉
       // オブジェクトで取得したデータへのアクセス方法 以下参考程度に
       // http://qiita.com/marumaru8228/items/65fc684383b096f0e548
-      //
-      //
 
       //
     </script>
